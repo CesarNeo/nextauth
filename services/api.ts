@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios'
 import { parseCookies, setCookie } from 'nookies'
+import { signOut } from '../contexts/AuthContext'
 
 interface AxiosErrorResponse {
   code?: string
@@ -20,7 +21,7 @@ api.interceptors.response.use(
   response => {
     return response
   },
-  async (error: AxiosError<AxiosErrorResponse>) => {
+  (error: AxiosError<AxiosErrorResponse>) => {
     if (error.response?.status === 401) {
       if (error.response.data.code === 'token.expired') {
         cookies = parseCookies()
@@ -52,7 +53,7 @@ api.interceptors.response.use(
                 }
               )
 
-              api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+              api.defaults.headers['Authorization'] = `Bearer ${token}`
 
               failedRequestsQueue.forEach((request: any) =>
                 request.onSuccess(token)
@@ -87,7 +88,10 @@ api.interceptors.response.use(
           })
         })
       } else {
+        signOut()
       }
     }
+
+    return Promise.reject(error)
   }
 )
