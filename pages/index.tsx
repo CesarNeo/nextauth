@@ -1,4 +1,5 @@
-import { NextPage } from 'next'
+import { GetServerSideProps, NextPage } from 'next'
+import { parseCookies } from 'nookies'
 import { FormEvent, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -15,7 +16,6 @@ const Home: NextPage = () => {
       email,
       password
     }
-    
 
     await signIn(data)
   }
@@ -39,3 +39,20 @@ const Home: NextPage = () => {
 }
 
 export default Home
+
+export const getServerSideProps: GetServerSideProps = async context => {
+  const cookies = parseCookies(context)
+
+  if (cookies['nextauth.token']) {
+    return {
+      redirect: {
+        destination: '/dashboard',
+        permanent: false
+      }
+    }
+  }
+
+  return {
+    props: {}
+  }
+}
