@@ -1,12 +1,17 @@
 import { NextPage } from 'next'
 import { useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import { useCan } from '../hooks/useCan'
 import { setupAPIClient } from '../services/api'
 import { api } from '../services/apiClient'
 import { withSSRAuth } from '../utils/withSSRAuth'
 
 export const Dashboard: NextPage = () => {
   const { user } = useAuth()
+
+  const userCanSeeMetrics = useCan({
+    roles: ['editor']
+  })
 
   useEffect(() => {
     api
@@ -15,7 +20,13 @@ export const Dashboard: NextPage = () => {
       .catch(error => console.log(error))
   }, [])
 
-  return <h1>Dashboard: {user?.email}</h1>
+  return (
+    <>
+      <h1>Dashboard: {user?.email}</h1>
+
+      {userCanSeeMetrics && <div>Métricas</div>}
+    </>
+  )
 }
 
 export default Dashboard
